@@ -43,6 +43,8 @@ import AdvancedSpellFilter from './AdvancedSpellFilter';
 import TormentaTitle from './TormentaTitle';
 import SearchInput from '../DatabaseTables/SearchInput';
 import CopyUrlButton from './CopyUrlButton';
+import AddToGrimoireButton from '../PocketGrimoire/AddToGrimoireButton';
+import { encyclopediaIds } from '../../functions/encyclopediaSearch';
 import { useAuth } from '../../hooks/useAuth';
 import {
   SupplementId,
@@ -100,9 +102,9 @@ const getCircleNumber = (spellCircle: spellsCircles): number => {
 
 interface SpellFilters {
   search: string;
-  circle: number | 'all';
-  school: string | 'all';
-  executionTime: string | 'all';
+  circles: number[];
+  schools: string[];
+  executionTimes: string[];
   spellType: 'arcane' | 'divine' | 'all';
 }
 
@@ -210,6 +212,10 @@ const Row: React.FC<{ spell: MergedSpell; defaultOpen: boolean }> = ({
                   sx={{ ml: 1 }}
                 />
               )}
+            <AddToGrimoireButton
+              itemId={encyclopediaIds.spell(spell.nome)}
+              itemName={spell.nome}
+            />
             <CopyUrlButton
               itemName={spell.nome}
               itemType='magia'
@@ -248,6 +254,13 @@ const Row: React.FC<{ spell: MergedSpell; defaultOpen: boolean }> = ({
               >
                 {spell.nome} - {spell.school}
               </Typography>
+              <Box sx={{ mb: 2 }}>
+                <AddToGrimoireButton
+                  itemId={encyclopediaIds.spell(spell.nome)}
+                  itemName={spell.nome}
+                  variant='labeled'
+                />
+              </Box>
 
               <Box sx={{ mb: 2 }}>
                 <Typography variant='body2' component='div'>
@@ -413,9 +426,9 @@ const UnifiedSpellsTable: React.FC = () => {
 
   const [filters, setFilters] = useState<SpellFilters>({
     search: '',
-    circle: 'all',
-    school: 'all',
-    executionTime: 'all',
+    circles: [],
+    schools: [],
+    executionTimes: [],
     spellType: 'all',
   });
 
@@ -444,20 +457,24 @@ const UnifiedSpellsTable: React.FC = () => {
     }
 
     // Circle filter
-    if (filters.circle !== 'all') {
-      const targetCircle = getSpellCircleEnum(Number(filters.circle));
-      filtered = filtered.filter((spell) => spell.spellCircle === targetCircle);
+    if (filters.circles.length) {
+      const targetCircles = filters.circles.map(getSpellCircleEnum);
+      filtered = filtered.filter((spell) =>
+        targetCircles.includes(spell.spellCircle)
+      );
     }
 
     // School filter
-    if (filters.school !== 'all') {
-      filtered = filtered.filter((spell) => spell.school === filters.school);
+    if (filters.schools.length) {
+      filtered = filtered.filter((spell) =>
+        filters.schools.includes(spell.school)
+      );
     }
 
     // Execution time filter
-    if (filters.executionTime !== 'all') {
-      filtered = filtered.filter(
-        (spell) => spell.execucao === filters.executionTime
+    if (filters.executionTimes.length) {
+      filtered = filtered.filter((spell) =>
+        filters.executionTimes.includes(spell.execucao)
       );
     }
 
