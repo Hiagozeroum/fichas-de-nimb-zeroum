@@ -24,6 +24,11 @@ import Select from 'react-select';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 
 import NumberField from '@/components/common/NumberField';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import {
+  DESKTOP_ONLY_CELL_SX,
+  MOBILE_ONLY_BLOCK_SX,
+} from '@/components/common/responsiveSx';
 import { SEO, getPageSEO } from '../SEO';
 import TormentaTitle from '../Database/TormentaTitle';
 import getSelectTheme from '../../functions/style';
@@ -46,6 +51,7 @@ type RewardWithId = RewardGenerated & { id: string };
 
 const Rewards: React.FC = () => {
   const theme = useTheme();
+  const isMobile = useIsMobile();
   const isDarkMode = theme.palette.mode === 'dark';
 
   const [items, setItems] = useState<RewardWithId[]>();
@@ -151,10 +157,10 @@ const Rewards: React.FC = () => {
                 <TableCell width='10%' sx={headerCellSx}>
                   ND
                 </TableCell>
-                <TableCell colSpan={2} sx={headerCellSx}>
+                <TableCell colSpan={isMobile ? 1 : 2} sx={headerCellSx}>
                   Dinheiro
                 </TableCell>
-                <TableCell colSpan={2} sx={headerCellSx}>
+                <TableCell colSpan={isMobile ? 1 : 2} sx={headerCellSx}>
                   Itens
                 </TableCell>
               </TableRow>
@@ -176,7 +182,7 @@ const Rewards: React.FC = () => {
                     sx={{ fontFamily: 'Tfont, serif' }}
                   />
                 </TableCell>
-                <TableCell>
+                <TableCell sx={DESKTOP_ONLY_CELL_SX}>
                   <Typography
                     variant='body2'
                     sx={{
@@ -188,8 +194,14 @@ const Rewards: React.FC = () => {
                 </TableCell>
                 <TableCell>
                   <Typography variant='body2'>{moneyStr}</Typography>
+                  <Typography
+                    variant='caption'
+                    sx={{ ...MOBILE_ONLY_BLOCK_SX, color: 'text.secondary' }}
+                  >
+                    D% = {item?.moneyRoll}
+                  </Typography>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={DESKTOP_ONLY_CELL_SX}>
                   <Typography
                     variant='body2'
                     sx={{
@@ -201,6 +213,12 @@ const Rewards: React.FC = () => {
                 </TableCell>
                 <TableCell>
                   <Typography variant='body2'>{itemStr}</Typography>
+                  <Typography
+                    variant='caption'
+                    sx={{ ...MOBILE_ONLY_BLOCK_SX, color: 'text.secondary' }}
+                  >
+                    D% = {item?.itemRoll}
+                  </Typography>
                 </TableCell>
               </TableRow>
               {(item.itemApplied || item.moneyApplied) && (
@@ -210,7 +228,7 @@ const Rewards: React.FC = () => {
                   }}
                 >
                   <TableCell />
-                  <TableCell />
+                  <TableCell sx={DESKTOP_ONLY_CELL_SX} />
                   <TableCell>
                     <Typography
                       variant='body2'
@@ -222,7 +240,7 @@ const Rewards: React.FC = () => {
                       {item.moneyApplied}
                     </Typography>
                   </TableCell>
-                  <TableCell />
+                  <TableCell sx={DESKTOP_ONLY_CELL_SX} />
                   <TableCell sx={{ whiteSpace: 'pre-wrap' }}>
                     <Typography
                       variant='body2'
