@@ -814,6 +814,29 @@ export function normalizeSheet(sheet: CharacterSheet): void {
       if (typeof sheet.devoto.sincretismo !== 'string') {
         delete sheet.devoto.sincretismo;
       }
+      // Fundamentalista: objeto com dogma conhecido, e nunca junto da
+      // devoção dupla (regra de Sincretismos de Arton).
+      const fundamentalista = sheet.devoto.fundamentalista as unknown;
+      const dogma =
+        typeof fundamentalista === 'object' && fundamentalista !== null
+          ? (fundamentalista as { dogma?: unknown }).dogma
+          : undefined;
+      if (
+        fundamentalista !== undefined &&
+        (!['sacerdote', 'druida', 'paladino'].includes(dogma as string) ||
+          !!sheet.devoto.divindadeSecundaria)
+      ) {
+        delete sheet.devoto.fundamentalista;
+      }
+      // Lembrete do poder adicional: só `true`, e nunca com o fundamentalismo
+      // ligado (aí o poder extra volta a valer).
+      if (
+        sheet.devoto.poderAdicionalPendente !== undefined &&
+        (sheet.devoto.poderAdicionalPendente !== true ||
+          !!sheet.devoto.fundamentalista)
+      ) {
+        delete sheet.devoto.poderAdicionalPendente;
+      }
     }
   }
 

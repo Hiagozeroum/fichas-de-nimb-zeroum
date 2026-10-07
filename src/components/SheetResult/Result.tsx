@@ -167,7 +167,10 @@ import '../../assets/css/result.css';
 import Spells from './SpellsTab/SpellsDisplay';
 import SkillTable from './SkillTable';
 import LabelDisplay from './LabelDisplay';
+import FundamentalistaControl from './FundamentalistaControl';
+import PendingExtraPowerAlert from './PendingExtraPowerAlert';
 import { getDevotionLabel } from '../../functions/powers/deityNames';
+import { getPreferredWeaponWarning } from '../../functions/powers/fundamentalista';
 import AttributeDisplay from './AttributeDisplay';
 import FancyBox from './common/FancyBox';
 import BookTitle from './common/BookTitle';
@@ -1798,6 +1801,12 @@ const Result: React.FC<ResultProps> = (props) => {
     [currentSheet]
   );
 
+  // Fundamentalista: só a arma preferida (aviso, não bloqueio).
+  const getFundamentalistWeaponWarning = useCallback(
+    (item: Equipment) => getPreferredWeaponWarning(currentSheet, item),
+    [currentSheet]
+  );
+
   const weaponsDiv = useMemo(() => {
     const wieldingTrackingActive =
       currentSheet.mainHandItemId !== undefined ||
@@ -1838,6 +1847,7 @@ const Result: React.FC<ResultProps> = (props) => {
         onWeaponSemanticsChange={
           onSheetUpdate ? handleWeaponSemanticsChange : undefined
         }
+        getWeaponWarning={getFundamentalistWeaponWarning}
       />
     );
   }, [
@@ -1862,6 +1872,7 @@ const Result: React.FC<ResultProps> = (props) => {
     handleConsumeAmmo,
     computeWieldingDisabled,
     effectiveProficiencias,
+    getFundamentalistWeaponWarning,
   ]);
 
   const defenseEquipments = useMemo(
@@ -2357,6 +2368,12 @@ const Result: React.FC<ResultProps> = (props) => {
                   size='small'
                 />
               )}
+              {devoto && (
+                <FundamentalistaControl
+                  sheet={currentSheet}
+                  onChange={onSheetUpdate ? applyRecalculatedSheet : undefined}
+                />
+              )}
               {conditionsFeature.isEnabled && (
                 <ConditionsBar
                   activeConditions={currentSheet.activeConditions}
@@ -2802,6 +2819,10 @@ const Result: React.FC<ResultProps> = (props) => {
         <>
           <Box>
             <BookTitle>Poderes</BookTitle>
+            <PendingExtraPowerAlert
+              sheet={currentSheet}
+              onChange={onSheetUpdate ? applyRecalculatedSheet : undefined}
+            />
             <PowersDisplay
               sheetHistory={currentSheet.sheetActionHistory || []}
               classAbilities={classe.abilities}
@@ -2978,7 +2999,11 @@ const Result: React.FC<ResultProps> = (props) => {
         <>
           <Box>
             <BookTitle>Equipamentos</BookTitle>
-            <EquipmentTable items={equipamentosOrdered} characterName={nome} />
+            <EquipmentTable
+              items={equipamentosOrdered}
+              characterName={nome}
+              getItemWarning={getFundamentalistWeaponWarning}
+            />
             <Box
               sx={{
                 mt: 2,
